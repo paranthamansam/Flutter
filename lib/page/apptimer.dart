@@ -49,7 +49,7 @@ class _AppTimerState extends State<AppTimer> {
     }
   }
 
-  void stop() {
+  void pause() {
     if (swatch.isRunning) {
       swatch.stop();
     }
@@ -58,9 +58,9 @@ class _AppTimerState extends State<AppTimer> {
     });
   }
 
-  void reset() {
+  void stop() {
     if (swatch.isRunning) {
-      stop();
+      pause();
     }
     swatch.reset();
     setState(() {
@@ -72,7 +72,7 @@ class _AppTimerState extends State<AppTimer> {
   }
 
   void clear() {
-    stop();
+    pause();
     time = "00:00:00";
     totalTime = "00:00:00";
     if (history.isNotEmpty) {
@@ -102,7 +102,7 @@ class _AppTimerState extends State<AppTimer> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.fromLTRB(5.0, 10.0, 5.0, 0.0),
+        padding: const EdgeInsets.fromLTRB(5.0, 10.0, 5.0, 0.0),
         child: Column(
           children: [
             Expanded(
@@ -120,25 +120,19 @@ class _AppTimerState extends State<AppTimer> {
                           (totalDuration.inSeconds % 60)
                               .toString()
                               .padLeft(2, '0'),
-                      style: TextStyle(fontSize: 30.0),
+                      style: const TextStyle(fontSize: 30.0),
                     ),
                     const SizedBox(
                       width: 10.0,
                     ),
-                    TextButton(
+                    IconButton(
                       onPressed: history.isEmpty
                           ? null
                           : () {
                               clear();
                             },
-                      child: const Text("Reset",
-                          style: TextStyle(
-                            color: Colors.white,
-                          )),
-                      style: ButtonStyle(
-                          backgroundColor: history.isNotEmpty
-                              ? MaterialStateProperty.all(Colors.red.shade400)
-                              : MaterialStateProperty.all(Colors.red.shade200)),
+                      icon: const Icon(Icons.restore),
+                      color: Colors.red.shade400,
                     ),
                   ],
                 )),
@@ -233,7 +227,7 @@ class _AppTimerState extends State<AppTimer> {
                           child: TextButton(
                             onPressed: running
                                 ? () {
-                                    reset();
+                                    stop();
                                   }
                                 : null,
                             child: const Text("Stop",
