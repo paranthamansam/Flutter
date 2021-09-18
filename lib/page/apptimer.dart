@@ -69,7 +69,9 @@ class _AppTimerState extends State<AppTimer> {
         ":" +
         (difference.inMinutes % 60).toString().padLeft(2, '0') +
         ":" +
-        (difference.inSeconds % 60).toString().padLeft(2, '0');
+        (difference.inSeconds % 60).toString().padLeft(2, '0') +
+        ":" +
+        (difference.inMilliseconds).toString();
     setState(() {
       var his = Histroy(startTime, endTime, diffTime);
       history.add(his);
@@ -89,11 +91,12 @@ class _AppTimerState extends State<AppTimer> {
   }
 
   void totalHistoryDuration() {
-    var duration = const Duration(seconds: 0);
+    var duration = const Duration(milliseconds: 0);
     totalTime = "00:00:00";
     for (var item in history) {
       duration += Duration(
-          seconds: (item.endTime.difference(item.startTime).inSeconds));
+          milliseconds:
+              (item.endTime.difference(item.startTime).inMilliseconds));
     }
     setState(() {
       totalDuration = duration;
