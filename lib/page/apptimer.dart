@@ -65,13 +65,13 @@ class _AppTimerState extends State<AppTimer> {
     swatch.reset();
     var endTime = DateTime.now();
     var difference = endTime.difference(startTime);
-    time = difference.inHours.toString().padLeft(2, '0') +
+    var diffTime = difference.inHours.toString().padLeft(2, '0') +
         ":" +
         (difference.inMinutes % 60).toString().padLeft(2, '0') +
         ":" +
         (difference.inSeconds % 60).toString().padLeft(2, '0');
     setState(() {
-      var his = Histroy(startTime, endTime, time);
+      var his = Histroy(startTime, endTime, diffTime);
       history.add(his);
       time = "00:00:00";
     });
