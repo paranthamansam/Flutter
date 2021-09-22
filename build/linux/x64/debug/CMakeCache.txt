@@ -47,7 +47,7 @@ CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
 CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 
 //Flags used by the linker.
-CMAKE_EXE_LINKER_FLAGS:STRING=-L/snap/flutter/current/usr/lib/gcc/x86_64-linux-gnu/8 -L/snap/flutter/current/usr/lib/x86_64-linux-gnu -lblkid -lgcrypt -llzma -lpthread -ldl -L/snap/flutter/current/usr/lib/
+CMAKE_EXE_LINKER_FLAGS:STRING=-L/snap/flutter/current/usr/lib/gcc/x86_64-linux-gnu/8 -L/snap/flutter/current/usr/lib/x86_64-linux-gnu -lblkid -lgcrypt -llzma -lpthread -ldl -L/snap/flutter/current/usr/lib/ -L/snap/flutter/current/usr/lib/gcc/x86_64-linux-gnu/8 -L/snap/flutter/current/usr/lib/x86_64-linux-gnu -lblkid -lgcrypt -llzma -lpthread -ldl -L/snap/flutter/current/usr/lib/
 
 //Flags used by the linker during debug builds.
 CMAKE_EXE_LINKER_FLAGS_DEBUG:STRING=
@@ -74,7 +74,7 @@ CMAKE_LINKER:FILEPATH=/snap/flutter/current/usr/bin/ld
 CMAKE_MAKE_PROGRAM:FILEPATH=/snap/flutter/current/usr/bin/ninja
 
 //Flags used by the linker during the creation of modules.
-CMAKE_MODULE_LINKER_FLAGS:STRING=-L/snap/flutter/current/usr/lib/gcc/x86_64-linux-gnu/8 -L/snap/flutter/current/usr/lib/x86_64-linux-gnu -lblkid -lgcrypt -llzma -lpthread -ldl -L/snap/flutter/current/usr/lib/
+CMAKE_MODULE_LINKER_FLAGS:STRING=-L/snap/flutter/current/usr/lib/gcc/x86_64-linux-gnu/8 -L/snap/flutter/current/usr/lib/x86_64-linux-gnu -lblkid -lgcrypt -llzma -lpthread -ldl -L/snap/flutter/current/usr/lib/ -L/snap/flutter/current/usr/lib/gcc/x86_64-linux-gnu/8 -L/snap/flutter/current/usr/lib/x86_64-linux-gnu -lblkid -lgcrypt -llzma -lpthread -ldl -L/snap/flutter/current/usr/lib/
 
 //Flags used by the linker during debug builds.
 CMAKE_MODULE_LINKER_FLAGS_DEBUG:STRING=
@@ -104,7 +104,7 @@ CMAKE_PROJECT_NAME:STATIC=runner
 CMAKE_RANLIB:FILEPATH=/snap/flutter/current/usr/bin/ranlib
 
 //Flags used by the linker during the creation of dll's.
-CMAKE_SHARED_LINKER_FLAGS:STRING=-L/snap/flutter/current/usr/lib/gcc/x86_64-linux-gnu/8 -L/snap/flutter/current/usr/lib/x86_64-linux-gnu -lblkid -lgcrypt -llzma -lpthread -ldl -L/snap/flutter/current/usr/lib/
+CMAKE_SHARED_LINKER_FLAGS:STRING=-L/snap/flutter/current/usr/lib/gcc/x86_64-linux-gnu/8 -L/snap/flutter/current/usr/lib/x86_64-linux-gnu -lblkid -lgcrypt -llzma -lpthread -ldl -L/snap/flutter/current/usr/lib/ -L/snap/flutter/current/usr/lib/gcc/x86_64-linux-gnu/8 -L/snap/flutter/current/usr/lib/x86_64-linux-gnu -lblkid -lgcrypt -llzma -lpthread -ldl -L/snap/flutter/current/usr/lib/
 
 //Flags used by the linker during debug builds.
 CMAKE_SHARED_LINKER_FLAGS_DEBUG:STRING=

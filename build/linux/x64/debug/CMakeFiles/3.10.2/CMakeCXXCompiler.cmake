@@ -70,6 +70,6 @@ endif()
 
 
 
-set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "blkid;gcrypt;lzma;pthread;dl;stdc++;m;gcc_s;gcc;c;gcc_s;gcc")
+set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "blkid;gcrypt;lzma;pthread;dl;blkid;gcrypt;lzma;pthread;dl;stdc++;m;gcc_s;gcc;c;gcc_s;gcc")
 set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "/snap/flutter/current/usr/lib/gcc/x86_64-linux-gnu/8;/snap/flutter/current/usr/lib/x86_64-linux-gnu;/snap/flutter/current/usr/lib;/usr/lib/gcc/x86_64-linux-gnu/10;/usr/lib/x86_64-linux-gnu;/usr/lib64;/lib/x86_64-linux-gnu;/lib64;/usr/lib;/snap/flutter/101/usr/lib/llvm-6.0/lib;/lib")
 set(CMAKE_CXX_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "")
