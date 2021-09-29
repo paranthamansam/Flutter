@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text("Timer"),
+          title: const Text("Feed Timer"),
           centerTitle: true,
         ),
         body: const AppTimer(),
