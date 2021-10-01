@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'dart:async';
 import 'package:myapp/model/history.dart';
 import 'package:intl/intl.dart';
+import 'package:myapp/db/context.dart';
 
 class AppTimer extends StatefulWidget {
   const AppTimer({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class _AppTimerState extends State<AppTimer> {
   Category category = Category.none;
   String time = "00:00:00";
   Stopwatch swatch = Stopwatch();
-  DateFormat dateFormat = DateFormat.jms();
+  DateFormat dateFormat = DateFormat.yMd().add_jm();
 
   Duration totalDuration = const Duration(seconds: 0);
   String totalTime = "00:00:00";
@@ -71,12 +72,15 @@ class _AppTimerState extends State<AppTimer> {
         ":" +
         (difference.inMinutes % 60).toString().padLeft(2, '0') +
         ":" +
-        (difference.inSeconds % 60).toString().padLeft(2, '0') +
-        ":" +
-        (difference.inMilliseconds).toString();
+        (difference.inSeconds % 60).toString().padLeft(2, '0');
     setState(() {
-      var his = History(startTime, endTime, diffTime, category);
-      history.add(his);
+      var his = History(
+          startTime: startTime,
+          endTime: endTime,
+          duration: diffTime,
+          category: category);
+      DBContext.instance.create(his);
+      refreshState();
       time = "00:00:00";
       category = Category.none;
     });
@@ -106,10 +110,30 @@ class _AppTimerState extends State<AppTimer> {
     });
   }
 
+  void refreshState() async {
+    // TOODO: get all history
+    var allHistory = await DBContext.instance.getAllHistory();
+    setState(() {
+      if (allHistory.isNotEmpty) {
+        // check setstate is required since it is InitState
+        history = allHistory;
+      } else {
+        history = [];
+      }
+    });
+  }
+
   @override
   void initState() {
     running = false;
+    refreshState();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    DBContext.instance.close();
+    super.dispose();
   }
 
   @override
@@ -168,7 +192,11 @@ class _AppTimerState extends State<AppTimer> {
                             TextButton(
                                 onPressed: () {
                                   setState(() {
-                                    history.removeAt(index);
+                                    if (history[index].id != null) {
+                                      DBContext.instance
+                                          .delete(history[index].id!);
+                                      refreshState();
+                                    }
                                   });
                                   Navigator.of(context).pop();
                                 },

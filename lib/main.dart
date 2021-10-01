@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:myapp/page/apptimer.dart';
 
 void main() {
