@@ -4,9 +4,11 @@ import 'dart:async';
 import 'package:myapp/model/history.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/db/context.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppTimer extends StatefulWidget {
-  const AppTimer({Key? key}) : super(key: key);
+  final DateTime picked;
+  const AppTimer({Key? key, required this.picked}) : super(key: key);
 
   @override
   _AppTimerState createState() => _AppTimerState();
@@ -17,6 +19,7 @@ class _AppTimerState extends State<AppTimer> {
   Category category = Category.none;
   String time = "00:00:00";
   Stopwatch swatch = Stopwatch();
+
   DateFormat dateFormat = DateFormat.yMd().add_jm();
 
   Duration totalDuration = const Duration(seconds: 0);
@@ -26,53 +29,42 @@ class _AppTimerState extends State<AppTimer> {
   List<History> history = [];
 
   void runner() {
-    if (swatch.isRunning) {
+    if (running) {
       Timer(const Duration(seconds: 1), () {
-        setState(() {
-          time = swatch.elapsed.inHours.toString().padLeft(2, '0') +
-              ":" +
-              (swatch.elapsed.inMinutes % 60).toString().padLeft(2, '0') +
-              ":" +
-              (swatch.elapsed.inSeconds % 60).toString().padLeft(2, '0');
-        });
-        runner();
+        if (running) {
+          setState(() {
+            time = duration(DateTime.now());
+          });
+          runner();
+        }
       });
     }
   }
 
-  void start(Category cat) {
-    if (!swatch.isRunning) {
-      swatch.start();
-      setState(() {
-        category = cat;
-        running = true;
-      });
-      runner();
-      startTime = DateTime.now();
-    }
+  Future<void> start(Category cat) async {
+    setState(() {
+      category = cat;
+      running = true;
+    });
+    runner();
+    startTime = DateTime.now();
+
+    setPreference(running, startTime, category);
   }
 
   void pause() {
-    if (swatch.isRunning) {
-      swatch.stop();
+    if (running) {
+      setState(() {
+        running = false;
+        resetPreference();
+      });
     }
-    setState(() {
-      running = false;
-    });
   }
 
   void stop() {
-    if (swatch.isRunning) {
-      pause();
-    }
-    swatch.reset();
+    pause();
     var endTime = DateTime.now();
-    var difference = endTime.difference(startTime);
-    var diffTime = difference.inHours.toString().padLeft(2, '0') +
-        ":" +
-        (difference.inMinutes % 60).toString().padLeft(2, '0') +
-        ":" +
-        (difference.inSeconds % 60).toString().padLeft(2, '0');
+    var diffTime = duration(endTime);
     setState(() {
       var his = History(
           startTime: startTime,
@@ -87,6 +79,15 @@ class _AppTimerState extends State<AppTimer> {
     totalHistoryDuration();
   }
 
+  String duration(DateTime endTime) {
+    var difference = endTime.difference(startTime);
+    return difference.inHours.toString().padLeft(2, '0') +
+        ":" +
+        (difference.inMinutes % 60).toString().padLeft(2, '0') +
+        ":" +
+        (difference.inSeconds % 60).toString().padLeft(2, '0');
+  }
+
   void clear() {
     pause();
     time = "00:00:00";
@@ -95,6 +96,33 @@ class _AppTimerState extends State<AppTimer> {
       history.clear();
       totalHistoryDuration();
     }
+  }
+
+  Future<void> setPreference(bool running, DateTime start, Category cat) async {
+    var sharedPreff = await SharedPreferences.getInstance();
+    sharedPreff.setBool("running", running);
+    sharedPreff.setString("category", History.getCategoryDisplayName(category));
+    sharedPreff.setString("startTime", startTime.toIso8601String());
+  }
+
+  Future<void> readPreference() async {
+    var sharedPreff = await getSharedPrefereceInstance();
+
+    running = sharedPreff.getBool("running") ?? false;
+    category =
+        History.getHistoryEnum(sharedPreff.getString("category") ?? "none");
+    if (sharedPreff.getString("startTime") != null) {
+      startTime = DateTime.parse(sharedPreff.getString("startTime")!);
+    }
+    if (running) {
+      runner();
+    }
+  }
+
+  Future<void> resetPreference() async {
+    var sharedPreff = await getSharedPrefereceInstance();
+
+    sharedPreff.clear();
   }
 
   void totalHistoryDuration() {
@@ -112,7 +140,7 @@ class _AppTimerState extends State<AppTimer> {
 
   void refreshState() async {
     // TOODO: get all history
-    var allHistory = await DBContext.instance.getAllHistory();
+    var allHistory = await DBContext.instance.getHistoryByDate(widget.picked);
     setState(() {
       if (allHistory.isNotEmpty) {
         // check setstate is required since it is InitState
@@ -123,10 +151,13 @@ class _AppTimerState extends State<AppTimer> {
     });
   }
 
+  static Future<SharedPreferences> getSharedPrefereceInstance() async {
+    return await SharedPreferences.getInstance();
+  }
+
   @override
-  void initState() {
-    running = false;
-    refreshState();
+  initState() {
+    readPreference();
     super.initState();
   }
 
@@ -138,6 +169,7 @@ class _AppTimerState extends State<AppTimer> {
 
   @override
   Widget build(BuildContext context) {
+    refreshState();
     return Padding(
         padding: const EdgeInsets.fromLTRB(5.0, 10.0, 5.0, 0.0),
         child: Column(
@@ -210,7 +242,7 @@ class _AppTimerState extends State<AppTimer> {
                         ),
                       ),
                       leading: Text(
-                        history[index].getCategoryDisplayName(),
+                        History.getCategoryDisplayName(history[index].category),
                         style: const TextStyle(fontSize: 25.0),
                       ),
                       title: Center(
@@ -261,13 +293,17 @@ class _AppTimerState extends State<AppTimer> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(
-                          width: 30.0,
-                        ),
                         Expanded(
                             flex: 4,
-                            child: Text(time,
-                                style: const TextStyle(fontSize: 30.0))),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(History.getCategoryDisplayName(category),
+                                    style: const TextStyle(fontSize: 30.0)),
+                                Text(time,
+                                    style: const TextStyle(fontSize: 30.0)),
+                              ],
+                            )),
                         Expanded(
                           flex: 8,
                           child: Column(

@@ -13,7 +13,7 @@ class History {
       required this.duration,
       required this.category});
 
-  String getCategoryDisplayName() {
+  static String getCategoryDisplayName(Category category) {
     String displayName = "None";
     switch (category) {
       case Category.left:
@@ -26,7 +26,7 @@ class History {
         displayName = "Sleep";
         break;
       default:
-        displayName = "Sleep";
+        displayName = "---";
     }
     return displayName;
   }
@@ -36,7 +36,7 @@ class History {
         HistoryField.start: startTime.toIso8601String(),
         HistoryField.end: endTime.toIso8601String(),
         HistoryField.duration: duration,
-        HistoryField.category: getCategoryDisplayName(),
+        HistoryField.category: getCategoryDisplayName(category),
       };
 
   History copy({

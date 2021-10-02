@@ -62,6 +62,17 @@ class DBContext {
     return result.map((json) => History.fromJson(json)).first;
   }
 
+  Future<List<History>> getHistoryByDate(DateTime date) async {
+    final db = await instance.database;
+    final result = await db.query(historyTable,
+        where: '${HistoryField.start} BETWEEN ? AND ?',
+        whereArgs: [
+          date.toIso8601String(),
+          date.add(const Duration(days: 1)).toIso8601String()
+        ]);
+    return result.map((json) => History.fromJson(json)).toList();
+  }
+
   Future<int> delete(int id) async {
     final db = await instance.database;
     return db
