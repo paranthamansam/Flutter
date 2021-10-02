@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:myapp/page/apptimer.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 
@@ -57,7 +58,7 @@ class _BaseLayerState extends State<BaseLayer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Feed Timer"),
+        title: Text(DateFormat.yMd().format(picked)),
         centerTitle: true,
         actions: [
           Padding(
