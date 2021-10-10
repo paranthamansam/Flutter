@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:myapp/model/history.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/db/context.dart';
+import 'package:myapp/page/edit_timer_history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppTimer extends StatefulWidget {
@@ -121,7 +122,6 @@ class _AppTimerState extends State<AppTimer> {
 
   Future<void> resetPreference() async {
     var sharedPreff = await getSharedPrefereceInstance();
-
     sharedPreff.clear();
   }
 
@@ -218,9 +218,17 @@ class _AppTimerState extends State<AppTimer> {
                       onLongPress: () => showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text("Delete Item"),
-                          content: const Text("Continue to delete"),
+                          title: const Text("Action"),
+                          content: const Text("Select the action"),
                           actions: [
+                            TextButton(
+                              onPressed: () => {
+                                Navigator.pushNamed(
+                                    context, EditTimerHistory.id,
+                                    arguments: history[index])
+                              },
+                              child: const Text("Edit"),
+                            ),
                             TextButton(
                                 onPressed: () {
                                   setState(() {
@@ -232,12 +240,12 @@ class _AppTimerState extends State<AppTimer> {
                                   });
                                   Navigator.of(context).pop();
                                 },
-                                child: const Text("Ok")),
+                                child: const Text("Delete")),
                             TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: const Text("Cancel"))
+                                child: const Text("Close"))
                           ],
                         ),
                       ),
@@ -381,7 +389,8 @@ class _AppTimerState extends State<AppTimer> {
                                 ],
                               ),
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.fromLTRB(
+                                    4.0, 8.0, 4.0, 0.0),
                                 child: TextButton(
                                   onPressed: running
                                       ? () {
