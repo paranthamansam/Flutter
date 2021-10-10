@@ -82,13 +82,13 @@ class _BaseLayerState extends State<BaseLayer> {
           children: [
             IconButton(
                 onPressed: () {
-                  _nextday();
+                  _prevday();
                 },
                 icon: const Icon(Icons.arrow_left)),
             Text(DateFormat.yMd().format(picked)),
             IconButton(
                 onPressed: () {
-                  _prevday();
+                  _nextday();
                 },
                 icon: const Icon(Icons.arrow_right))
           ],
