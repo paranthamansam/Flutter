@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:myapp/db/context.dart';
 import 'package:myapp/page/edit_timer_history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:myapp/utils/date.dart';
 
 class AppTimer extends StatefulWidget {
   final DateTime picked;
@@ -34,7 +35,7 @@ class _AppTimerState extends State<AppTimer> {
       Timer(const Duration(seconds: 1), () {
         if (running) {
           setState(() {
-            time = duration(DateTime.now());
+            time = Date.duration(startTime, DateTime.now());
           });
           runner();
         }
@@ -65,7 +66,7 @@ class _AppTimerState extends State<AppTimer> {
   void stop() {
     pause();
     var endTime = DateTime.now();
-    var diffTime = duration(endTime);
+    var diffTime = Date.duration(startTime, endTime);
     setState(() {
       var his = History(
           startTime: startTime,
@@ -78,15 +79,6 @@ class _AppTimerState extends State<AppTimer> {
       category = Category.none;
     });
     totalHistoryDuration();
-  }
-
-  String duration(DateTime endTime) {
-    var difference = endTime.difference(startTime);
-    return difference.inHours.toString().padLeft(2, '0') +
-        ":" +
-        (difference.inMinutes % 60).toString().padLeft(2, '0') +
-        ":" +
-        (difference.inSeconds % 60).toString().padLeft(2, '0');
   }
 
   void clear() {
@@ -222,10 +214,11 @@ class _AppTimerState extends State<AppTimer> {
                           content: const Text("Select the action"),
                           actions: [
                             TextButton(
-                              onPressed: () => {
+                              onPressed: () {
+                                Navigator.of(context).pop();
                                 Navigator.pushNamed(
                                     context, EditTimerHistory.id,
-                                    arguments: history[index])
+                                    arguments: history[index]);
                               },
                               child: const Text("Edit"),
                             ),

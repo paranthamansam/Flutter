@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/page/apptimer.dart';
-import 'package:date_time_picker/date_time_picker.dart';
 import 'package:myapp/page/edit_timer_history.dart';
 
 void main() {
