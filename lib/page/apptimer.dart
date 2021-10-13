@@ -7,6 +7,7 @@ import 'package:myapp/db/context.dart';
 import 'package:myapp/page/edit_timer_history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myapp/utils/date.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 class AppTimer extends StatefulWidget {
   final DateTime picked;
@@ -26,6 +27,9 @@ class _AppTimerState extends State<AppTimer> {
 
   Duration totalDuration = const Duration(seconds: 0);
   String totalTime = "00:00:00";
+
+  TextStyle titleStyle = const TextStyle(
+      color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold);
 
   late DateTime startTime;
   List<History> history = [];
@@ -133,6 +137,7 @@ class _AppTimerState extends State<AppTimer> {
   void refreshState() async {
     // TOODO: get all history
     var allHistory = await DBContext.instance.getHistoryByDate(widget.picked);
+
     setState(() {
       if (allHistory.isNotEmpty) {
         // check setstate is required since it is InitState
@@ -159,257 +164,284 @@ class _AppTimerState extends State<AppTimer> {
     super.dispose();
   }
 
+  Widget totalCard(Category category) {
+    Duration time = const Duration();
+    if (history.isNotEmpty) {
+      history.map((e) {
+        if (e.category == category) {
+          time +=
+              Duration(seconds: (e.endTime.difference(e.startTime).inSeconds));
+        }
+      }).toList();
+    }
+    return Column(
+      children: [
+        Text(History.getCategoryDisplayName(category), style: titleStyle),
+        Text(
+            "${(time.inHours).toString().padLeft(2, '0')}hr ${(time.inMinutes % 60).toString().padLeft(2, '0')}min",
+            style: titleStyle)
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     refreshState();
-    return Padding(
-        padding: const EdgeInsets.fromLTRB(5.0, 10.0, 5.0, 0.0),
-        child: Column(
-          children: [
-            // Expanded(
-            //     flex: 2,
-            //     child: Row(
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: [
-            //         Text(
-            //           totalDuration.inHours.toString().padLeft(2, '0') +
-            //               ":" +
-            //               (totalDuration.inMinutes % 60)
-            //                   .toString()
-            //                   .padLeft(2, '0') +
-            //               ":" +
-            //               (totalDuration.inSeconds % 60)
-            //                   .toString()
-            //                   .padLeft(2, '0'),
-            //           style: const TextStyle(fontSize: 30.0),
-            //         ),
-            //         const SizedBox(
-            //           width: 10.0,
-            //         ),
-            //         IconButton(
-            //           onPressed: history.isEmpty
-            //               ? null
-            //               : () {
-            //                   clear();
-            //                 },
-            //           icon: const Icon(Icons.restore),
-            //           color: Colors.red.shade400,
-            //         ),
-            //       ],
-            //     )),
-            // const SizedBox(
-            //   height: 30.0,
-            // ),
-            Expanded(
-              flex: 18,
-              child: ListView.builder(
-                itemCount: history.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      onLongPress: () => showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Action"),
-                          content: const Text("Select the action"),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                Navigator.pushNamed(
-                                    context, EditTimerHistory.id,
-                                    arguments: history[index]);
-                              },
-                              child: const Text("Edit"),
-                            ),
-                            TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    if (history[index].id != null) {
-                                      DBContext.instance
-                                          .delete(history[index].id!);
-                                      refreshState();
-                                    }
-                                  });
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text("Delete")),
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text("Close"))
-                          ],
-                        ),
-                      ),
-                      leading: Text(
-                        History.getCategoryDisplayName(history[index].category),
-                        style: const TextStyle(fontSize: 25.0),
-                      ),
-                      title: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              history[index].duration,
-                              style: const TextStyle(fontSize: 25.0),
-                            ),
-                          ],
-                        ),
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              dateFormat.format(history[index].startTime),
-                              style: TextStyle(
-                                  color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              dateFormat.format(history[index].endTime),
-                              style: TextStyle(
-                                  color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
+    return Column(
+      children: [
+        Expanded(
+            flex: 4,
+            child: Container(
+              decoration: const BoxDecoration(
+                  color: Colors.indigo,
+                  gradient: LinearGradient(colors: [
+                    Colors.pink,
+                    Colors.purple,
+                  ]),
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(16))),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [totalCard(Category.sleep)],
+                  ),
+                  const SizedBox(
+                    height: 10.00,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      totalCard(Category.left),
+                      totalCard(Category.right)
+                    ],
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            Expanded(
-              flex: 3,
-              child: Card(
-                child: Container(
-                  color: Colors.grey.shade300,
-                  child: Center(
+            )),
+        Expanded(
+          flex: 18,
+          child: ListView.builder(
+            itemCount: history.length,
+            itemBuilder: (context, index) {
+              return Card(
+                child: ListTile(
+                  onLongPress: () => showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Action"),
+                      content: const Text("Select the action"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Navigator.pushNamed(context, EditTimerHistory.id,
+                                arguments: history[index]);
+                          },
+                          child: const Text("Edit"),
+                        ),
+                        TextButton(
+                            onPressed: () {
+                              setState(() {
+                                if (history[index].id != null) {
+                                  DBContext.instance.delete(history[index].id!);
+                                  refreshState();
+                                }
+                              });
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Delete")),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Close"))
+                      ],
+                    ),
+                  ),
+                  leading: Text(
+                    History.getCategoryDisplayName(history[index].category),
+                    style: const TextStyle(
+                        fontSize: 20.0, fontWeight: FontWeight.bold),
+                  ),
+                  title: Center(
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                            flex: 4,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text(History.getCategoryDisplayName(category),
-                                    style: const TextStyle(fontSize: 30.0)),
-                                Text(time,
-                                    style: const TextStyle(fontSize: 30.0)),
-                              ],
-                            )),
-                        Expanded(
-                          flex: 8,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: TextButton(
-                                      onPressed: !running
-                                          ? () {
-                                              start(Category.left);
-                                            }
-                                          : null,
-                                      child: const Text("L",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          )),
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all(!running
-                                                  ? Colors.green.shade400
-                                                  : Colors.green.shade200)),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 10.0,
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: TextButton(
-                                      onPressed: !running
-                                          ? () {
-                                              start(Category.right);
-                                            }
-                                          : null,
-                                      child: const Text("R",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          )),
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all(!running
-                                                  ? Colors.green.shade400
-                                                  : Colors.green.shade200)),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 10.0,
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: TextButton(
-                                      onPressed: !running
-                                          ? () {
-                                              start(Category.sleep);
-                                            }
-                                          : null,
-                                      child: const Text("Zzz",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          )),
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all(!running
-                                                  ? Colors.blueAccent.shade400
-                                                  : Colors
-                                                      .blueAccent.shade200)),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 10.0,
-                                  ),
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    4.0, 8.0, 4.0, 0.0),
-                                child: TextButton(
-                                  onPressed: running
-                                      ? () {
-                                          stop();
-                                        }
-                                      : null,
-                                  child: const Text("Stop",
-                                      style: TextStyle(color: Colors.white)),
-                                  style: ButtonStyle(
-                                      backgroundColor: running
-                                          ? MaterialStateProperty.all(
-                                              Colors.red.shade400)
-                                          : MaterialStateProperty.all(
-                                              Colors.red.shade200)),
-                                ),
-                              ),
-                            ],
-                          ),
+                        Text(
+                          history[index].duration,
+                          style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade700),
+                        ),
+                      ],
+                    ),
+                  ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          dateFormat.format(history[index].startTime),
+                          style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          dateFormat.format(history[index].endTime),
+                          style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
                   ),
                 ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(
+          height: 10.0,
+        ),
+        Expanded(
+          flex: 4,
+          child: Card(
+            child: Container(
+              decoration: const BoxDecoration(
+                  color: Colors.indigo,
+                  gradient: LinearGradient(colors: [
+                    Colors.pink,
+                    Colors.purple,
+                  ]),
+                  borderRadius: BorderRadius.all(Radius.circular(20))),
+              child: Center(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                        flex: 4,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(History.getCategoryDisplayName(category),
+                                style: TextStyle(
+                                    color: Colors.grey.shade200,
+                                    fontSize: 25.0,
+                                    fontWeight: FontWeight.bold)),
+                            Text(time,
+                                style: TextStyle(
+                                    color: Colors.grey.shade200,
+                                    fontSize: 25.0,
+                                    fontWeight: FontWeight.bold)),
+                          ],
+                        )),
+                    Expanded(
+                      flex: 8,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: TextButton(
+                                  onPressed: !running
+                                      ? () {
+                                          start(Category.left);
+                                        }
+                                      : null,
+                                  child: const Text("L",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      )),
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(!running
+                                              ? Colors.green.shade400
+                                              : Colors.green.shade200)),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10.0,
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: TextButton(
+                                  onPressed: !running
+                                      ? () {
+                                          start(Category.right);
+                                        }
+                                      : null,
+                                  child: const Text("R",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      )),
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(!running
+                                              ? Colors.green.shade400
+                                              : Colors.green.shade200)),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10.0,
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: TextButton(
+                                  onPressed: !running
+                                      ? () {
+                                          start(Category.sleep);
+                                        }
+                                      : null,
+                                  child: const Text("Zzz",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      )),
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(!running
+                                              ? Colors.blueAccent.shade400
+                                              : Colors.blueAccent.shade200)),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10.0,
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(4.0, 8.0, 4.0, 0.0),
+                            child: TextButton(
+                              onPressed: running
+                                  ? () {
+                                      stop();
+                                    }
+                                  : null,
+                              child: const Text("Stop",
+                                  style: TextStyle(color: Colors.white)),
+                              style: ButtonStyle(
+                                  backgroundColor: running
+                                      ? MaterialStateProperty.all(
+                                          Colors.red.shade400)
+                                      : MaterialStateProperty.all(
+                                          Colors.red.shade200)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ));
+          ),
+        ),
+      ],
+    );
   }
 }

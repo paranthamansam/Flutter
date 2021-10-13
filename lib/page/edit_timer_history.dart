@@ -42,7 +42,6 @@ class _EditTimerHistoryState extends State<EditTimerHistory> {
     startTime = startTime ?? args.startTime;
     endTime = endTime ?? args.endTime;
     category = category ?? args.category.toString().split('.').last;
-    String dropdownValue = 'One';
     return Scaffold(
         appBar: AppBar(
           title: const Text('Edit'),

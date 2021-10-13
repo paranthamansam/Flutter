@@ -13,8 +13,6 @@ class History {
       required this.duration,
       required this.category});
 
-  static List<String> sCategory = <String>["none", "left, right, sleep"];
-
   static String getCategoryDisplayName(Category category) {
     String displayName;
     switch (category) {
@@ -28,7 +26,7 @@ class History {
         displayName = "Sleep";
         break;
       default:
-        displayName = "None";
+        displayName = "---";
     }
     return displayName;
   }
