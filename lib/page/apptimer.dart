@@ -30,6 +30,8 @@ class _AppTimerState extends State<AppTimer> {
 
   TextStyle titleStyle = const TextStyle(
       color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold);
+  TextStyle hrsStyle = const TextStyle(
+      color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold);
 
   late DateTime startTime;
   List<History> history = [];
@@ -164,7 +166,7 @@ class _AppTimerState extends State<AppTimer> {
     super.dispose();
   }
 
-  Widget totalCard(Category category) {
+  Widget totalCard(Category category, Color percentColor) {
     Duration time = const Duration();
     if (history.isNotEmpty) {
       history.map((e) {
@@ -174,12 +176,25 @@ class _AppTimerState extends State<AppTimer> {
         }
       }).toList();
     }
+    var tMin = 24 * 60;
+    var percent = time.inMinutes / tMin;
     return Column(
       children: [
-        Text(History.getCategoryDisplayName(category), style: titleStyle),
-        Text(
-            "${(time.inHours).toString().padLeft(2, '0')}hr ${(time.inMinutes % 60).toString().padLeft(2, '0')}min",
-            style: titleStyle)
+        CircularPercentIndicator(
+          circularStrokeCap: CircularStrokeCap.round,
+          backgroundColor: Colors.white,
+          animation: true,
+          animationDuration: 1200,
+          radius: 60.0,
+          lineWidth: 7.0,
+          percent: percent,
+          footer:
+              Text(History.getCategoryDisplayName(category), style: titleStyle),
+          center: Text(
+              "${(time.inHours).toString().padLeft(2, '0')}:${(time.inMinutes % 60).toString().padLeft(2, '0')}",
+              style: hrsStyle),
+          progressColor: percentColor,
+        ),
       ],
     );
   }
@@ -190,7 +205,7 @@ class _AppTimerState extends State<AppTimer> {
     return Column(
       children: [
         Expanded(
-            flex: 4,
+            flex: 3,
             child: Container(
               decoration: const BoxDecoration(
                   color: Colors.indigo,
@@ -204,16 +219,10 @@ class _AppTimerState extends State<AppTimer> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [totalCard(Category.sleep)],
-                  ),
-                  const SizedBox(
-                    height: 10.00,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      totalCard(Category.left),
-                      totalCard(Category.right)
+                      totalCard(Category.left, Colors.purple),
+                      totalCard(Category.right, Colors.green.shade500),
+                      totalCard(Category.sleep, Colors.indigo.shade500)
                     ],
                   ),
                 ],
