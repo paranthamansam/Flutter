@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:myapp/model/history.dart';
+import 'package:feedtime/model/history.dart';
 
 class DBContext {
   static final DBContext instance = DBContext._init();

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:myapp/page/apptimer.dart';
-import 'package:myapp/page/edit_timer_history.dart';
+import 'package:feedtime/page/apptimer.dart';
+import 'package:feedtime/page/edit_timer_history.dart';
 
 void main() {
   runApp(const MyApp());

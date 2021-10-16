@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:async';
-import 'package:myapp/model/history.dart';
+import 'package:feedtime/model/history.dart';
 import 'package:intl/intl.dart';
-import 'package:myapp/db/context.dart';
-import 'package:myapp/page/edit_timer_history.dart';
+import 'package:feedtime/db/context.dart';
+import 'package:feedtime/page/edit_timer_history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:myapp/utils/date.dart';
+import 'package:feedtime/utils/date.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:percent_indicator/percent_indicator.dart';
 
 class AppTimer extends StatefulWidget {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:myapp/db/context.dart';
-import 'package:myapp/model/history.dart';
-import 'package:myapp/utils/date.dart';
+import 'package:feedtime/db/context.dart';
+import 'package:feedtime/model/history.dart';
+import 'package:feedtime/utils/date.dart';
 
 class EditTimerHistory extends StatefulWidget {
   static String id = "EditTimerHistory";
