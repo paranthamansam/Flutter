@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.feedtime">
+   <!-- link to generate the icons with differnt size https://makeappicon.com/download/3bf5436dde774ac1925b1484b9cda829 -->
    <application
-        android:label="FeedTime"
+        android:label="FeedTime" 
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

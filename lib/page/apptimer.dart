@@ -188,7 +188,7 @@ class _AppTimerState extends State<AppTimer> {
           animationDuration: 1200,
           radius: 60.0,
           lineWidth: 7.0,
-          percent: percent,
+          percent: percent > 0 ? percent : 0,
           footer:
               Text(History.getCategoryDisplayName(category), style: titleStyle),
           center: Text(
@@ -231,86 +231,92 @@ class _AppTimerState extends State<AppTimer> {
             )),
         Expanded(
           flex: 18,
-          child: ListView.builder(
-            itemCount: history.length,
-            itemBuilder: (context, index) {
-              return Card(
-                child: ListTile(
-                  onLongPress: () => showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text("Action"),
-                      content: const Text("Select the action"),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            Navigator.pushNamed(context, EditTimerHistory.id,
-                                arguments: history[index]);
-                          },
-                          child: const Text("Edit"),
-                        ),
-                        TextButton(
-                            onPressed: () {
-                              setState(() {
-                                if (history[index].id != null) {
-                                  DBContext.instance.delete(history[index].id!);
-                                  refreshState();
-                                }
-                              });
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text("Delete")),
-                        TextButton(
+          child: Scrollbar(
+            isAlwaysShown: true,
+            radius: const Radius.circular(10.0),
+            thickness: 7.0,
+            child: ListView.builder(
+              itemCount: history.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  child: ListTile(
+                    onLongPress: () => showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Action"),
+                        content: const Text("Select the action"),
+                        actions: [
+                          TextButton(
                             onPressed: () {
                               Navigator.of(context).pop();
+                              Navigator.pushNamed(context, EditTimerHistory.id,
+                                  arguments: history[index]);
                             },
-                            child: const Text("Close"))
-                      ],
+                            child: const Text("Edit"),
+                          ),
+                          TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  if (history[index].id != null) {
+                                    DBContext.instance
+                                        .delete(history[index].id!);
+                                    refreshState();
+                                  }
+                                });
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("Delete")),
+                          TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("Close"))
+                        ],
+                      ),
+                    ),
+                    leading: Text(
+                      History.getCategoryDisplayName(history[index].category),
+                      style: const TextStyle(
+                          fontSize: 20.0, fontWeight: FontWeight.bold),
+                    ),
+                    title: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            history[index].duration,
+                            style: TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade700),
+                          ),
+                        ],
+                      ),
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            dateFormat.format(history[index].startTime),
+                            style: TextStyle(
+                                color: Colors.grey.shade500,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            dateFormat.format(history[index].endTime),
+                            style: TextStyle(
+                                color: Colors.grey.shade500,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  leading: Text(
-                    History.getCategoryDisplayName(history[index].category),
-                    style: const TextStyle(
-                        fontSize: 20.0, fontWeight: FontWeight.bold),
-                  ),
-                  title: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          history[index].duration,
-                          style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade700),
-                        ),
-                      ],
-                    ),
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          dateFormat.format(history[index].startTime),
-                          style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          dateFormat.format(history[index].endTime),
-                          style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
         const SizedBox(

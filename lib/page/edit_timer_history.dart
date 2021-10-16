@@ -17,15 +17,18 @@ class _EditTimerHistoryState extends State<EditTimerHistory> {
   DateTime? endTime;
   String? category;
   DateFormat dateFormat = DateFormat.yMd().add_jm();
+  final _formKey = GlobalKey<FormState>();
 
   Future<DateTime?> _selectDateTime(DateTime initial) async {
     late final TimeOfDay? time;
     DateTime? date;
     date = await showDatePicker(
+        selectableDayPredicate: (day) => day.isBefore(DateTime.now()),
         context: context,
         initialDate: initial,
         firstDate: DateTime(2021),
         lastDate: DateTime(2050));
+
     time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
 
     setState(() {
@@ -47,78 +50,114 @@ class _EditTimerHistoryState extends State<EditTimerHistory> {
           title: const Text('Edit'),
           centerTitle: true,
         ),
-        body: Column(
-          children: [
-            TextFormField(
-                decoration: const InputDecoration(labelText: "Start"),
-                controller:
-                    TextEditingController(text: dateFormat.format(startTime!)),
-                readOnly: true,
-                onTap: () async {
-                  var sTime = await _selectDateTime(startTime!);
-                  if (sTime != null) {
-                    setState(() {
-                      startTime = sTime;
-                    });
-                  }
-                }),
-            TextFormField(
-                decoration: const InputDecoration(labelText: "End"),
-                controller:
-                    TextEditingController(text: dateFormat.format(endTime!)),
-                readOnly: true,
-                onTap: () async {
-                  var sTime = await _selectDateTime(endTime!);
-                  if (sTime != null) {
-                    setState(() {
-                      endTime = sTime;
-                    });
-                  }
-                }),
-            DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: "Type"),
-                value: args.category.toString().split('.').last,
-                onChanged: (String? cat) {
-                  setState(() {
-                    if (cat != null) {
-                      category = cat;
-                    }
-                  });
-                },
-                items: Category.values.map((Category e) {
-                  return DropdownMenuItem<String>(
-                      value: e.toString().split('.').last,
-                      child: Text(History.getCategoryDisplayName(e)));
-                }).toList()),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                Colors.green.shade600)),
-                        onPressed: () async {
-                          History history =
-                              await DBContext.instance.getHistoryById(args.id!);
-                          history.startTime = startTime!;
-                          history.endTime = endTime!;
-                          history.duration =
-                              Date.duration(startTime!, endTime!);
-                          history.category = History.getHistoryEnum(category!);
-                          DBContext.instance.update(history);
-                          Navigator.pop(context);
-                        },
-                        child: const Text("Update",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ))),
-                  )
-                ],
-              ),
-            )
-          ],
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(8.0, 16.0, 8.0, 0.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                    decoration: const InputDecoration(labelText: "Start"),
+                    validator: (value) {
+                      if (endTime!.difference(startTime!).inMinutes < 0) {
+                        return "Start timme shouldn't be greater then End Time";
+                      }
+                      return null;
+                    },
+                    controller: TextEditingController(
+                        text: dateFormat.format(startTime!)),
+                    readOnly: true,
+                    onTap: () async {
+                      var sTime = await _selectDateTime(startTime!);
+                      if (sTime != null) {
+                        setState(() {
+                          startTime = sTime;
+                        });
+                      }
+                    }),
+                TextFormField(
+                    decoration: const InputDecoration(labelText: "End"),
+                    validator: (value) {
+                      if (startTime!.difference(endTime!).inMinutes > 0) {
+                        return "End timme should be greater then Start Time";
+                      }
+                      return null;
+                    },
+                    controller: TextEditingController(
+                        text: dateFormat.format(endTime!)),
+                    readOnly: true,
+                    onTap: () async {
+                      var sTime = await _selectDateTime(endTime!);
+                      if (sTime != null) {
+                        setState(() {
+                          endTime = sTime;
+                        });
+                      }
+                    }),
+                DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: "Type"),
+                    value: args.category.toString().split('.').last,
+                    validator: (value) {
+                      if (value == Category.none.toString().split('.').last) {
+                        return "Please select the category";
+                      }
+                      return null;
+                    },
+                    onChanged: (String? cat) {
+                      setState(() {
+                        if (cat != null) {
+                          category = cat;
+                        }
+                      });
+                    },
+                    items: Category.values.map((Category e) {
+                      return DropdownMenuItem<String>(
+                          value: e.toString().split('.').last,
+                          child: Text(History.getCategoryDisplayName(e)));
+                    }).toList()),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all(
+                                    Colors.green.shade600)),
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                History history = await DBContext.instance
+                                    .getHistoryById(args.id!);
+                                history.startTime = startTime!;
+                                history.endTime = endTime!;
+                                history.duration =
+                                    Date.duration(startTime!, endTime!);
+                                history.category =
+                                    History.getHistoryEnum(category!);
+                                DBContext.instance.update(history);
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                    "Record Updated!!",
+                                    style: TextStyle(
+                                        fontSize: 15.0,
+                                        fontWeight: FontWeight.bold),
+                                  )),
+                                );
+                              }
+                            },
+                            child: const Text("Update",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ))),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
         ));
   }
 }

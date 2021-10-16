@@ -26,7 +26,7 @@ class History {
         displayName = "Sleep";
         break;
       default:
-        displayName = "---";
+        displayName = "None";
     }
     return displayName;
   }
