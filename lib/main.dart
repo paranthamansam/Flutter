@@ -118,7 +118,11 @@ class _BaseLayerState extends State<BaseLayer> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                IconButton(icon: const Icon(Icons.add), onPressed: () {}),
+                IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      Navigator.pushNamed(context, EditTimerHistory.id);
+                    }),
               ],
             ),
           )

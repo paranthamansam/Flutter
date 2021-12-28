@@ -50,7 +50,7 @@ class DBContext {
 
   Future<List<History>> getAllHistory() async {
     final db = await instance.database;
-    const orderBy = '${HistoryField.id} ASC';
+    const orderBy = '${HistoryField.start} ASC';
     final result = await db.query(historyTable, orderBy: orderBy);
     return result.map((json) => History.fromJson(json)).toList();
   }
@@ -64,7 +64,9 @@ class DBContext {
 
   Future<List<History>> getHistoryByDate(DateTime date) async {
     final db = await instance.database;
+    const orderBy = '${HistoryField.start} ASC';
     final result = await db.query(historyTable,
+        orderBy: orderBy,
         where: '${HistoryField.start} BETWEEN ? AND ?',
         whereArgs: [
           date.toIso8601String(),

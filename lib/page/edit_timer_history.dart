@@ -41,13 +41,25 @@ class _EditTimerHistoryState extends State<EditTimerHistory> {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as History;
-    startTime = startTime ?? args.startTime;
-    endTime = endTime ?? args.endTime;
-    category = category ?? args.category.toString().split('.').last;
+    late History args;
+    late int? historyId;
+    if (ModalRoute.of(context)!.settings.arguments != null) {
+      args = ModalRoute.of(context)!.settings.arguments as History;
+      historyId = args.id;
+
+      startTime = startTime ?? args.startTime;
+      endTime = endTime ?? args.endTime;
+      category = category ?? args.category.toString().split('.').last;
+    } else {
+      historyId = null;
+      startTime = startTime ?? DateTime.now();
+      endTime = endTime ?? startTime;
+      category = category ?? Category.none.toString().split('.').last;
+    }
+
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Edit'),
+          title: const Text('Add/Edit'),
           centerTitle: true,
         ),
         body: Padding(
@@ -96,7 +108,7 @@ class _EditTimerHistoryState extends State<EditTimerHistory> {
                     }),
                 DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: "Type"),
-                    value: args.category.toString().split('.').last,
+                    value: category.toString().split('.').last,
                     validator: (value) {
                       if (value == Category.none.toString().split('.').last) {
                         return "Please select the category";
@@ -126,20 +138,31 @@ class _EditTimerHistoryState extends State<EditTimerHistory> {
                                     Colors.green.shade600)),
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                History history = await DBContext.instance
-                                    .getHistoryById(args.id!);
-                                history.startTime = startTime!;
-                                history.endTime = endTime!;
-                                history.duration =
-                                    Date.duration(startTime!, endTime!);
-                                history.category =
-                                    History.getHistoryEnum(category!);
-                                DBContext.instance.update(history);
+                                if (historyId == null) {
+                                  History history = History(
+                                      startTime: startTime!,
+                                      endTime: endTime!,
+                                      duration:
+                                          Date.duration(startTime!, endTime!),
+                                      category:
+                                          History.getHistoryEnum(category!));
+                                  DBContext.instance.create(history);
+                                } else {
+                                  History history = await DBContext.instance
+                                      .getHistoryById(historyId);
+                                  history.startTime = startTime!;
+                                  history.endTime = endTime!;
+                                  history.duration =
+                                      Date.duration(startTime!, endTime!);
+                                  history.category =
+                                      History.getHistoryEnum(category!);
+                                  DBContext.instance.update(history);
+                                }
                                 Navigator.pop(context);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text(
-                                    "Record Updated!!",
+                                    "Record Upserted!!",
                                     style: TextStyle(
                                         fontSize: 15.0,
                                         fontWeight: FontWeight.bold),

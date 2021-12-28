@@ -255,16 +255,35 @@ class _AppTimerState extends State<AppTimer> {
                             child: const Text("Edit"),
                           ),
                           TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  if (history[index].id != null) {
-                                    DBContext.instance
-                                        .delete(history[index].id!);
-                                    refreshState();
-                                  }
-                                });
-                                Navigator.of(context).pop();
-                              },
+                              onPressed: () => showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                        title: const Text("Delete"),
+                                        content:
+                                            const Text("Confirm to delete"),
+                                        actions: [
+                                          TextButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (history[index].id !=
+                                                      null) {
+                                                    DBContext.instance.delete(
+                                                        history[index].id!);
+                                                    refreshState();
+                                                  }
+                                                });
+                                                Navigator.of(context).pop();
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: const Text("Confirm")),
+                                          TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: const Text("Cancel"))
+                                        ],
+                                      )),
                               child: const Text("Delete")),
                           TextButton(
                               onPressed: () {
