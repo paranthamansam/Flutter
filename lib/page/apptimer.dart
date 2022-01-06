@@ -188,7 +188,7 @@ class _AppTimerState extends State<AppTimer> {
           animationDuration: 1200,
           radius: 60.0,
           lineWidth: 7.0,
-          percent: percent > 0 ? percent : 0,
+          percent: percent > 0 && percent <= 1 ? percent : 0,
           footer:
               Text(History.getCategoryDisplayName(category), style: titleStyle),
           center: Text(

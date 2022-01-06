@@ -137,7 +137,13 @@ class _EditTimerHistoryState extends State<EditTimerHistory> {
                                 backgroundColor: MaterialStateProperty.all(
                                     Colors.green.shade600)),
                             onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
+                              if (_formKey.currentState!.validate() &&
+                                  Duration(
+                                              seconds: (endTime!
+                                                  .difference(startTime!)
+                                                  .inSeconds))
+                                          .inHours <
+                                      10) {
                                 if (historyId == null) {
                                   History history = History(
                                       startTime: startTime!,
@@ -163,6 +169,16 @@ class _EditTimerHistoryState extends State<EditTimerHistory> {
                                   const SnackBar(
                                       content: Text(
                                     "Record Upserted!!",
+                                    style: TextStyle(
+                                        fontSize: 15.0,
+                                        fontWeight: FontWeight.bold),
+                                  )),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                    "Start and End duration should be max of 10hrs",
                                     style: TextStyle(
                                         fontSize: 15.0,
                                         fontWeight: FontWeight.bold),
